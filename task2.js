@@ -14,14 +14,23 @@ const getFullName = (person) => {
     }
   };
 
-const filterUniqueWords = text =>
-text.split(/\s+/)
-    .filter((word, index, array) => array.indexOf(word) === index)
-    .sort();
+const toLowerCaseAndSplit = text => text.toLowerCase().split(/\s+/);
+const filterUnique = words =>
+  words.filter((word, index, array) => array.indexOf(word) === index);
+const sortWords = words => words.sort();
+const compose = (...functions) => input =>
+  functions.reduceRight((acc, func) => func(acc), input);
+const filterUniqueWords = compose(sortWords, filterUnique, toLowerCaseAndSplit);
 
-const getAverageGrade = students =>
-students.map(student => student.grades.reduce((total, grade) => total + grade, 0) / student.grades.length)
-        .reduce((total, grade) => total + grade, 0) / students.length;
+const calculateAverage = arr => arr.reduce((total, value) => total + value, 0) / arr.length;
+const calculateStudentAverage = student => calculateAverage(student.grades);
+const calculateOverallAverage = averages => calculateAverage(averages);
+const pipe = (...functions) => input =>
+  functions.reduceRight((acc, func) => func(acc), input);
+const getAverageGrade = pipe(
+  calculateOverallAverage,
+  students => students.map(calculateStudentAverage)
+);
 
 // TESTING //
 
@@ -34,11 +43,14 @@ const person2 = { firstName: 1, lastName: true};
 console.log(getFullName(person2));
 const person3 = [ firstName = "Diego", lastName = "Bottegoni"];
 console.log(getFullName(person3));
-console.log("***********************************")
 
+console.log("***********************************")
+console.log("filterUniqueWords:");
 const text = "apple Banana banana orange apple";
 console.log(filterUniqueWords(text));
 
+console.log("***********************************")
+console.log("getAvarageGrade:");
 const students = [
 { name: "Alice", grades: [80, 90, 95] },
 { name: "Bob", grades: [70, 85, 90] },
