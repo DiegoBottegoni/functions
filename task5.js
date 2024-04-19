@@ -1,14 +1,35 @@
 function lazyMap(array, mappingFunction) {
-    return array.map(mappingFunction);
-}
+    let index = 0;
+        return {
+          next: function() {
+        if (index < array.length) {
+          return { value: mappingFunction(array[index++]), done: false };
+        } else {
+          return { done: true };
+        }
+      }
+    };
+  }
 
-function fibonacciGenerator(limit) {
+  function fibonacciGenerator(limit) {
     let sequence = [0, 1];
-    for (let i = 2; i < limit; i++) {
-        sequence.push(sequence[i - 1] + sequence[i - 2]);
-    }
-    return sequence;
-}
+    
+    const getNextFibonacci = () => {
+      const nextFibonacci = sequence[sequence.length - 1] + sequence[sequence.length - 2];
+      sequence.push(nextFibonacci);
+      return nextFibonacci;
+    };
+  
+    return {
+      next: () => {
+        if (sequence.length < limit) {
+          return { value: getNextFibonacci(), done: false };
+        } else {
+          return { done: true };
+        }
+      }
+    };
+  }
 
 // TESTING //
 
@@ -17,10 +38,15 @@ const lazyMapped = lazyMap(array, x => x + 2);
 
 console.log("*********************************");
 console.log("lazyMap")
-lazyMapped.forEach(value => console.log(value));
+console.log(lazyMapped.next().value);
+console.log(lazyMapped.next().value);
+console.log(lazyMapped.next().value);
 console.log("*********************************");
 
 console.log("fibonacciGenerator")
-const fibonacci = fibonacciGenerator(10); // Limit to the 10th digit
-fibonacci.forEach(value => console.log(value));
+const fibonacci = fibonacciGenerator(10);
+console.log(fibonacci.next().value);
+console.log(fibonacci.next().value);
+console.log(fibonacci.next().value);
+console.log(fibonacci.next().value);
 console.log("*********************************");
